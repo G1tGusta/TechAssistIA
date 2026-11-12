@@ -1,0 +1,313 @@
+{
+  "entradas": [
+    {
+      "id": "sem-internet",
+      "titulo": "Sem internet ou internet instável",
+      "palavras_chave": [
+        "sem internet",
+        "internet caiu",
+        "internet lenta",
+        "internet",
+        "wifi",
+        "wi-fi",
+        "sem rede",
+        "rede caiu",
+        "cabo de rede"
+      ],
+      "passos": [
+        "Olhe o canto inferior direito da tela, perto do relógio. Se aparecer um globo, um X ou o aviso \"sem conexão\", o problema é mesmo a conexão.",
+        "Se você usa cabo: confira se ele está bem encaixado nas duas pontas (no computador e na tomada de parede) e se há luzinhas acesas na entrada de rede. Desconecte e conecte de novo com calma.",
+        "Se você usa Wi-Fi: confira se o Wi-Fi está ligado, se o modo avião está desligado e se você está conectado à rede correta da empresa.",
+        "Abra outro site (por exemplo, um site de notícias) para ver se o problema é só em um endereço específico.",
+        "Pergunte a um colega ao lado se a internet dele também está fora. Se estiver, o problema é da rede e não do seu computador."
+      ],
+      "resultado_esperado": "Os sites voltam a abrir normalmente.",
+      "quando_abrir_chamado": "Se outros colegas também estão sem internet, se cabo e Wi-Fi estão corretos e nada muda, ou se acontece várias vezes no dia. Pode ser falha de rede ou firewall, que só a TI resolve.",
+      "categoria_chamado": "Rede / Internet"
+    },
+    {
+      "id": "impressora",
+      "titulo": "Impressora não imprime",
+      "palavras_chave": [
+        "impressora",
+        "imprimir",
+        "imprime",
+        "impressao",
+        "papel preso",
+        "toner",
+        "tinta"
+      ],
+      "passos": [
+        "Confira se a impressora está ligada na tomada e com a luz de energia acesa.",
+        "Olhe o visor ou as luzes dela. Os motivos mais comuns são: papel acabando, papel preso, tampa aberta ou aviso de toner/tinta.",
+        "Confira se o cabo (USB ou de rede) está bem encaixado nas duas pontas. Se for impressora de rede, veja se ela indica que está online.",
+        "No programa em que você está imprimindo, confira se escolheu a impressora certa na lista antes de clicar em Imprimir.",
+        "Desligue a impressora, espere 30 segundos, ligue de novo e tente imprimir mais uma vez."
+      ],
+      "resultado_esperado": "Consegui scannear agora",
+      "quando_abrir_chamado": "Se a impressora não aparece na lista, se o aviso de erro continua depois de ligar e desligar, ou se várias pessoas não conseguem imprimir.",
+      "categoria_chamado": "Impressora / Periféricos"
+    },
+    {
+      "id": "scanner",
+      "titulo": "Impressora não scannea",
+      "palavras_chave": [
+        "scann",
+        "computador",
+        "scannear",
+        "impressão"
+      ],
+      "passos": [
+        "No canto inferior esquerdo clique na setinha ao lado do sinal de internet",
+        "Procure um programa chamado 'ControlCenter4' clique nele e escolha a opção avançado, caso apareça",
+        "Caso contrario abra um chamado para solicitar o suporte do pessoal da TI."
+      ],
+      "resultado_esperado": "O documento sai normalmente na impressora.",
+      "quando_abrir_chamado": "Se a impressora não aparece na lista, se o aviso de erro continua depois de ligar e desligar, ou se várias pessoas não conseguem imprimir.",
+      "categoria_chamado": "Impressora / Periféricos"
+    },
+    {
+      "id": "computador-lento-travado",
+      "titulo": "Computador ou programa lento / travado",
+      "palavras_chave": [
+        "lento",
+        "devagar",
+        "travando",
+        "travou",
+        "travado",
+        "nao responde",
+        "parou de responder",
+        "congelou",
+        "congelado",
+        "demorando para abrir"
+      ],
+      "passos": [
+        "Espere um ou dois minutos sem clicar de novo. Clicar várias vezes pode piorar a lentidão.",
+        "Se for só um programa: feche-o pelo X no canto da janela. Se ele não fechar, aperte as teclas Ctrl + Alt + Delete, escolha \"Gerenciador de Tarefas\", clique no programa e depois em \"Finalizar tarefa\".",
+        "Abra o programa de novo. Se tiver trabalho não salvo, o programa pode oferecer recuperar o arquivo.",
+        "Feche abas de navegador e programas que você não está usando.",
+        "Se continuar lento, salve o que puder e reinicie o computador pelo menu Iniciar > Reiniciar (não use o botão de desligar na tomada)."
+      ],
+      "resultado_esperado": "O programa e o computador voltam a responder em velocidade normal.",
+      "quando_abrir_chamado": "Se a lentidão volta todo dia, se o computador trava mesmo logo após reiniciar, ou se o problema é em um sistema da empresa que outras pessoas também usam.",
+      "categoria_chamado": "Computador / Windows"
+    },
+    {
+      "id": "monitor-sem-imagem",
+      "titulo": "Monitor sem imagem ou tela preta",
+      "palavras_chave": [
+        "tela preta",
+        "sem imagem",
+        "monitor",
+        "tela apagada",
+        "sem video",
+        "tela piscando",
+        "tela escura"
+      ],
+      "passos": [
+        "Confira se o monitor está ligado na tomada e se a luzinha dele está acesa.",
+        "Mexa levemente o mouse ou aperte uma tecla: o computador pode só estar em descanso de tela.",
+        "Confira o cabo que liga o monitor ao computador (HDMI, VGA ou DisplayPort). Ele precisa estar bem encaixado nas duas pontas.",
+        "Se o monitor tiver um botão de \"Entrada\" ou \"Input\", confira se está na entrada certa (a mesma do cabo que você usa).",
+        "Se o computador ligou (luzes acesas, ventoinha funcionando) mas a tela continua preta, reinicie o computador."
+      ],
+      "resultado_esperado": "A imagem volta a aparecer no monitor.",
+      "quando_abrir_chamado": "Se o monitor liga mas não mostra imagem mesmo com cabos corretos, se a tela pisca sempre, ou se o computador não liga (nenhuma luz).",
+      "categoria_chamado": "Impressora / Periféricos"
+    },
+    {
+      "id": "sem-som",
+      "titulo": "Sem som, fone ou microfone",
+      "palavras_chave": [
+        "sem som",
+        "nao tem som",
+        "nao ouco",
+        "nao escuto",
+        "audio",
+        "volume",
+        "fone",
+        "headset",
+        "microfone",
+        "caixa de som"
+      ],
+      "passos": [
+        "Confira se o volume do computador e do próprio fone/caixa de som não está no mínimo ou no mudo (ícone de alto-falante perto do relógio).",
+        "Se usa fone, headset ou caixa de som, desconecte e conecte de novo, bem firme.",
+        "Clique no ícone de alto-falante perto do relógio e veja qual dispositivo de som está selecionado. Escolha o fone ou caixa que você está usando.",
+        "Se o problema é no microfone, confira se ele não está no mudo (muitos fones têm um botão ou chave própria para isso).",
+        "Dentro do programa de reunião ou chamada, confira também as opções de áudio e escolha o dispositivo certo."
+      ],
+      "resultado_esperado": "Você volta a ouvir e/ou a ser ouvido normalmente.",
+      "quando_abrir_chamado": "Se o computador não reconhece o fone/microfone em nenhuma entrada ou se o som falha em todos os programas.",
+      "categoria_chamado": "Impressora / Periféricos"
+    },
+    {
+      "id": "nao-consigo-entrar",
+      "titulo": "Não consigo entrar (login ou senha)",
+      "palavras_chave": [
+        "esqueci a senha",
+        "esqueci minha senha",
+        "senha",
+        "nao consigo entrar",
+        "nao consigo logar",
+        "login",
+        "senha expirada",
+        "conta bloqueada",
+        "usuario ou senha incorretos",
+        "senha incorreta",
+        "usuario bloqueado",
+        "usuario"
+      ],
+      "passos": [
+        "Confira se a tecla Caps Lock (letras maiúsculas) está desligada.",
+        "Confira se o idioma do teclado está correto e digite devagar. Se houver o ícone de olho ao lado do campo de senha, use-o para ver o que você digitou.",
+        "Não fique tentando várias vezes: depois de algumas tentativas erradas a conta pode ser bloqueada.",
+        "Se o sistema tiver a opção \"Esqueci minha senha\", use-a e siga as instruções da tela.",
+        "Importante: a TI nunca pede sua senha. Não envie sua senha neste chat nem no chamado."
+      ],
+      "resultado_esperado": "Você consegue entrar normalmente.",
+      "quando_abrir_chamado": "Se aparecer \"conta bloqueada\" ou \"senha expirada\", ou se a senha correta continua sem funcionar. A redefinição é feita somente pela TI.",
+      "categoria_chamado": "Acesso / Sistemas"
+    },
+    {
+      "id": "teclado-mouse",
+      "titulo": "Teclado ou mouse não funciona",
+      "palavras_chave": [
+        "mouse",
+        "teclado",
+        "cursor parado",
+        "mouse sem fio",
+        "teclado sem fio",
+        "bateria do mouse"
+      ],
+      "passos": [
+        "Se for sem fio: troque as pilhas ou carregue a bateria, e confira se o pequeno receptor USB está bem encaixado no computador.",
+        "Se for com fio: desconecte e conecte o cabo em outra entrada USB do computador.",
+        "Se for mouse, confira se a parte de baixo (o sensor) está limpa e se você não está usando em superfície de vidro ou muito brilhante.",
+        "Salve seu trabalho (se conseguir) e reinicie o computador pelo menu Iniciar > Reiniciar."
+      ],
+      "resultado_esperado": "O mouse ou o teclado volta a responder.",
+      "quando_abrir_chamado": "Se o equipamento não funciona em nenhuma entrada USB ou mesmo depois de trocar pilhas e reiniciar. Pode ser necessário trocar o equipamento.",
+      "categoria_chamado": "Impressora / Periféricos"
+    },
+    {
+      "id": "pasta-de-rede",
+      "titulo": "Não abre a pasta ou unidade de rede",
+      "palavras_chave": [
+        "pasta de rede",
+        "unidade de rede",
+        "arquivos da rede",
+        "compartilhamento",
+        "pasta compartilhada",
+        "servidor de arquivos",
+        "nao abre a pasta"
+      ],
+      "passos": [
+        "Confira se você está com internet/rede: abra um site para testar.",
+        "Se você trabalha de casa, confira se a conexão segura da empresa (VPN) está ligada.",
+        "Feche a janela da pasta e abra de novo pelo Explorador de Arquivos.",
+        "Se aparecer \"acesso negado\" ou \"sem permissão\", não tente outros caminhos. Anote a mensagem exata e o nome da pasta.",
+        "Salve seu trabalho e reinicie o computador. Depois tente abrir a pasta novamente."
+      ],
+      "resultado_esperado": "A pasta de rede abre normalmente.",
+      "quando_abrir_chamado": "Se aparecer \"acesso negado\" ou \"sem permissão\" (a TI precisa conferir seu acesso), ou se outros colegas também não conseguem abrir a pasta (possível problema no servidor).",
+      "categoria_chamado": "Servidor / Active Directory"
+    },
+    {
+      "id": "ramal-telefone",
+      "titulo": "Ramal / telefone (MicroSIP) não liga ou não recebe chamadas",
+      "palavras_chave": [
+        "ramal",
+        "telefone",
+        "microsip",
+        "softphone",
+        "nao consigo ligar",
+        "nao recebo ligacao",
+        "nao recebo chamada",
+        "sem audio na ligacao"
+      ],
+      "passos": [
+        "No MicroSIP, procure o indicador de status da sua conta. Normalmente verde ou \"online\" significa conectado.",
+        "Confira se o computador está com internet: abra um site para testar.",
+        "Feche o MicroSIP por completo: clique com o botão direito no ícone dele perto do relógio e escolha \"Exit\" (Sair). Depois abra de novo.",
+        "Confira se o fone/headset está conectado, se está escolhido como dispositivo de áudio e se o volume e o microfone não estão no mudo.",
+        "Não altere as configurações da conta (servidor, usuário ou senha do ramal). Isso é feito somente pela TI."
+      ],
+      "resultado_esperado": "O ramal fica conectado e você consegue fazer e receber chamadas.",
+      "quando_abrir_chamado": "Se o status do ramal não fica conectado mesmo com internet funcionando, ou se mais de uma pessoa está sem ramal (possível problema na central telefônica).",
+      "categoria_chamado": "Telefonia / Issabel / MicroSIP"
+    },
+    {
+      "id": "site-bloqueado",
+      "titulo": "Site bloqueado ou que não abre",
+      "palavras_chave": [
+        "site bloqueado",
+        "acesso bloqueado",
+        "pagina bloqueada",
+        "nao abre o site",
+        "bloqueado pelo firewall",
+        "acesso negado ao site",
+        "este site nao pode ser acessado",
+        "bloqueado",
+        "bloqueio",
+        "liberar site",
+        "liberacao de site"
+      ],
+      "passos": [
+        "Confira se o endereço do site foi digitado corretamente.",
+        "Abra outro site. Se só esse falha, ele pode estar bloqueado pela empresa ou fora do ar.",
+        "Espere alguns minutos e atualize a página (tecla F5).",
+        "Não use programas ou truques para burlar o bloqueio: isso pode ser um risco de segurança.",
+        "Se você precisa acessar esse site para trabalhar, abra um chamado informando o endereço completo, o horário e para que precisa dele."
+      ],
+      "resultado_esperado": "O site abre, ou você fica sabendo que o bloqueio é da empresa e pode pedir liberação.",
+      "quando_abrir_chamado": "Se o site é necessário para o trabalho e continua bloqueado. A liberação é decidida pela TI.",
+      "categoria_chamado": "Firewall / pfSense"
+    },
+    {
+      "id": "email",
+      "titulo": "E-mail não envia ou não recebe",
+      "palavras_chave": [
+        "email",
+        "e-mail",
+        "outlook",
+        "nao envia email",
+        "caixa de entrada",
+        "email nao chega",
+        "caixa de saida"
+      ],
+      "passos": [
+        "Confira se você está com internet: abra um site para testar.",
+        "Se usa o Outlook, olhe a barra de baixo: se aparecer \"Desconectado\" ou \"Trabalhando offline\", clique em \"Enviar/Receber\" e desative \"Trabalhar offline\".",
+        "Feche o programa de e-mail por completo e abra de novo.",
+        "Se uma mensagem não sai, veja se ficou na \"Caixa de saída\" e se o anexo não é muito grande.",
+        "Confira se o endereço do destinatário está escrito corretamente."
+      ],
+      "resultado_esperado": "Os e-mails voltam a ser enviados e recebidos.",
+      "quando_abrir_chamado": "Se o programa pede a senha repetidamente (não digite várias vezes), se aparecem erros de servidor ou se os e-mails não chegam para mais pessoas.",
+      "categoria_chamado": "Acesso / Sistemas"
+    },
+    {
+      "id": "computador-nao-liga",
+      "titulo": "Computador não liga",
+      "palavras_chave": [
+        "nao liga",
+        "computador nao liga",
+        "pc nao liga",
+        "sem energia",
+        "nao da sinal de vida",
+        "desligou sozinho"
+      ],
+      "passos": [
+        "Confira se o cabo de energia está bem encaixado no computador e na tomada, estabilizador ou filtro de linha, e se o filtro está ligado.",
+        "Se for notebook: conecte o carregador, confira se a luz do carregador acende e espere alguns minutos antes de tentar ligar.",
+        "Se há um monitor, confira se ele está ligado: às vezes o computador está ligado e só o monitor está apagado.",
+        "Tente ligar apertando o botão de energia uma vez, com calma, e espere alguns segundos.",
+        "Importante: não abra o computador nem mexa em fiação. Se sentir cheiro de queimado, ver faísca ou notar calor excessivo, tire da tomada e avise a TI imediatamente."
+      ],
+      "resultado_esperado": "O computador liga e chega à tela de login.",
+      "quando_abrir_chamado": "Se nenhuma luz acende mesmo com energia e cabos corretos, ou se houver qualquer sinal de risco elétrico.",
+      "categoria_chamado": "Computador / Windows"
+    }
+  ]
+}
