@@ -102,3 +102,48 @@ def ticket_description(entry, report):
         f"Relato do funcionário: {report}\n\n"
         f"Passos já tentados:\n{steps}"
     )
+
+
+# --- Intenção de encerrar a conversa (mensagens curtas digitadas no chat) ---
+_RESOLVED = ["resolveu", "resolvido", "resolvi", "funcionou", "deu certo", "consegui",
+             "voltou ao normal", "voltou a funcionar", "esta funcionando", "ja esta ok"]
+_CLOSING = ["terminar conversa", "terminar a conversa", "terminar atendimento", "encerrar conversa",
+            "encerrar a conversa", "encerrar atendimento", "encerrar chat", "finalizar conversa",
+            "finalizar atendimento", "pode encerrar", "pode fechar", "pode finalizar", "tchau",
+            "ate mais", "ate logo", "era so isso", "so isso", "nada mais", "obrigado", "obrigada",
+            "brigado", "valeu"]
+# Respostas à pergunta "Posso ajudar com mais algum problema?"
+_NO_MORE = {"nao", "nao obrigado", "nao obrigada", "nao preciso", "nao preciso de mais nada",
+            "nao tenho mais", "nada", "nenhum", "e so", "e so isso", "por enquanto e so"}
+# Respostas à pergunta "Esse passo a passo resolveu?" quando é negativa
+_NOT_RESOLVED = {"nao", "nao resolveu", "nao funcionou", "nao deu certo", "continua", "continua igual",
+                 "ainda nao", "ainda nao resolveu", "continua com problema"}
+
+
+def _has_phrase(norm, phrases):
+    return any(re.search(rf"\b{re.escape(p)}\b", norm) for p in phrases)
+
+
+def closing_intent(text, pending=False):
+    """Detecta se uma mensagem curta quer encerrar a conversa.
+
+    Retorna "resolvido", "encerrar", "nao_resolveu" (só com solução pendente) ou None.
+    Perguntas e mensagens longas ou com negação seguem o fluxo normal, para não
+    confundir "o sistema não encerra" (problema) com "encerrar conversa" (despedida).
+    """
+    raw = str(text)
+    norm = _norm(raw)
+    words = norm.split()
+    if not words or "?" in raw:
+        return None
+    if pending and norm in _NOT_RESOLVED:
+        return "nao_resolveu"
+    if not pending and norm in _NO_MORE:
+        return "encerrar"
+    if len(words) > 8 or re.search(r"\b(nao|nem|ainda|continua|mas)\b", norm):
+        return None
+    if _has_phrase(norm, _RESOLVED):
+        return "resolvido"
+    if len(words) <= 5 and _has_phrase(norm, _CLOSING):
+        return "encerrar"
+    return None

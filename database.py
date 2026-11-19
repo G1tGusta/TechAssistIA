@@ -45,6 +45,10 @@ def init_db():
                 criado_em TEXT NOT NULL
             )
         """)
+        # Bancos criados em versões anteriores: acrescenta a coluna do setor.
+        cols = [r["name"] for r in con.execute("PRAGMA table_info(tickets)")]
+        if "setor" not in cols:
+            con.execute("ALTER TABLE tickets ADD COLUMN setor TEXT NOT NULL DEFAULT ''")
 
 def log_kb_event(entry_id, requester, result):
     """Registra uso da base de soluções: sugerida, resolveu ou nao_resolveu."""
@@ -68,7 +72,7 @@ def generate_protocol(length=8):
         if any(c.isdigit() for c in code) and any(c.isalpha() for c in code):
             return code
 
-def create_ticket(requester, title, category, priority, description):
+def create_ticket(requester, title, category, priority, description, sector=""):
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     with connect() as con:
         for _ in range(20):
@@ -76,9 +80,9 @@ def create_ticket(requester, title, category, priority, description):
             try:
                 con.execute(
                     """INSERT INTO tickets
-                    (protocolo, solicitante, assunto, categoria, prioridade, descricao, status, criado_em, atualizado_em)
-                    VALUES (?, ?, ?, ?, ?, ?, 'Aberto', ?, ?)""",
-                    (protocol, requester, title, category, priority, description, now, now)
+                    (protocolo, solicitante, setor, assunto, categoria, prioridade, descricao, status, criado_em, atualizado_em)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, 'Aberto', ?, ?)""",
+                    (protocol, requester, sector, title, category, priority, description, now, now)
                 )
                 break
             except sqlite3.IntegrityError:
