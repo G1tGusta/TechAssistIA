@@ -1,0 +1,11 @@
+.venv/
+.env
+data/
+dados/
+tests/
+__pycache__/
+*.zip
+*.pyc
+servidor/
+versoes/
+.git/

@@ -1,0 +1,18 @@
+# Uso (dentro da pasta servidor):  docker compose up -d --build   (o .env fica na pasta do projeto)
+services:
+  techassist:
+    build:
+      context: ..
+      dockerfile: servidor/Dockerfile
+    image: techassist-ai:1.1.1
+    container_name: techassist-ai
+    restart: unless-stopped
+    ports:
+      - "8501:8501"
+    env_file: ../.env
+    environment:
+      TECHASSIST_DB: /data/techassist.db
+      TZ: America/Sao_Paulo
+    volumes:
+      - ../dados:/data                                          # banco de dados (chamados)
+      - ../base_conhecimento.json:/app/base_conhecimento.json   # solucoes editaveis sem reconstruir

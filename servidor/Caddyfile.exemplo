@@ -1,0 +1,7 @@
+# HTTPS com o Caddy (proxy reverso). Troque o nome pelo endereço interno do servidor.
+# Para nome interno sem domínio público, "tls internal" usa um certificado da própria máquina
+# (os navegadores precisam confiar nessa autoridade); com domínio público o Caddy obtém o certificado sozinho.
+chamados.suaempresa.local {
+    tls internal
+    reverse_proxy localhost:8501
+}

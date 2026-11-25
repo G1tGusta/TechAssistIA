@@ -1,0 +1,19 @@
+TechAssist AI - diagnóstico
+[info]  Pasta do sistema: C:\Users\gusta\Documents\TechAssistAI
+[OK]    Python 3.15.2
+[info]  Ambiente virtual (.venv) em uso
+[ERRO]  Arquivos faltando: .env.example
+          -> Extraia o zip completo por cima da pasta do sistema (todos os arquivos, não só alguns).
+[OK]    app.py sem erro de escrita (687 linhas).
+[OK]    Versão do sistema: 1.1.1
+[OK]    Os módulos do sistema são compatíveis entre si.
+[OK]    streamlit 1.67.0
+[OK]    groq 1.7.0
+[OK]    python-dotenv 1.2.4
+[OK]    .env com a senha do técnico preenchida.
+[OK]    GROQ_API_KEY preenchida (a IA fica ativa).
+[info]  Avisos para a TI configurados: nenhum (opcional)
+[OK]    base_conhecimento.json válido (12 soluções).
+[info]  Banco ainda não existe (será criado na primeira execução): C:\Users\gusta\Documents\TechAssistAI\data\techassist.db
+[OK]    Porta 8501 livre.
+RESULTADO: 1 erro(s), 0 aviso(s).

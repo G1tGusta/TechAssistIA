@@ -30,19 +30,33 @@ if errorlevel 1 (
     if errorlevel 1 goto :erro
 )
 
-rem --- 4) Arquivo .env ---
+rem --- 4) Arquivo .env (cria mesmo que o .env.example tenha ficado para tras) ---
 if not exist ".env" (
-    copy ".env.example" ".env" >nul
+    if exist ".env.example" (
+        copy ".env.example" ".env" >nul
+    ) else (
+        > ".env" echo GROQ_API_KEY=
+        >> ".env" echo GROQ_MODEL=openai/gpt-oss-120b
+        >> ".env" echo PESQUISA_WEB=on
+        >> ".env" echo TECHNICIAN_PASSWORD=
+    )
     echo.
     echo Vai abrir o arquivo .env. Preencha TECHNICIAN_PASSWORD ^(senha do tecnico^) e,
     echo se quiser usar a IA, GROQ_API_KEY. Salve, feche o Bloco de Notas e aguarde.
     start /wait notepad ".env"
 )
 
-rem --- 5) Iniciar ---
+rem --- 5) Evita a pergunta "Email:" do Streamlit na primeira execucao (ela trava a abertura) ---
+if not exist "%USERPROFILE%\.streamlit\credentials.toml" (
+    if not exist "%USERPROFILE%\.streamlit" mkdir "%USERPROFILE%\.streamlit"
+    > "%USERPROFILE%\.streamlit\credentials.toml" echo [general]
+    >> "%USERPROFILE%\.streamlit\credentials.toml" echo email = ""
+)
+
+rem --- 6) Iniciar ---
 echo.
-echo Iniciando o TechAssist AI... Para encerrar, feche esta janela.
-".venv\Scripts\python.exe" -m streamlit run app.py
+echo Iniciando o TechAssist AI... O navegador abre sozinho. Para encerrar, feche esta janela.
+".venv\Scripts\python.exe" -m streamlit run app.py --browser.gatherUsageStats false
 goto :fim
 
 :sem_python
@@ -52,7 +66,7 @@ echo Instale em https://www.python.org/downloads/ e marque "Add python.exe to PA
 
 :erro
 echo.
-echo A inicializacao nao foi concluida.
+echo A inicializacao nao foi concluida. Execute Diagnostico.bat para ver o que esta errado.
 
 :fim
 pause

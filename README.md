@@ -137,3 +137,54 @@ Quando a base de soluções não resolve e a conversa vai para a IA, ela pode pe
 - Se a pesquisa falhar, a IA responde normalmente sem ela (o motivo aparece na janela do programa).
 - Para desligar, coloque `PESQUISA_WEB=off` no arquivo `.env` e reinicie.
 - O painel do técnico mostra quantas pesquisas foram feitas.
+
+
+## Testes automatizados
+
+Na pasta do projeto (com o ambiente virtual ativo ou usando o Python do `.venv`):
+
+```
+python -m unittest discover -s tests -v
+```
+
+Cobrem a base de soluções, a detecção de mensagens de encerramento, o código aleatório do chamado e o banco de
+dados (inclusive a migração de bancos antigos). Não usam a internet nem a chave da IA. A interface (Streamlit) é
+testada manualmente, seguindo os cenários da documentação.
+
+
+## Melhorias recentes
+
+- **Conversa dentro do chamado:** em *Meus chamados* o funcionário vê o histórico e responde à TI. Se a TI estava
+  aguardando ou o chamado estava resolvido, a resposta volta o status para *Em atendimento*.
+- **Anotação interna:** o técnico marca a anotação como interna e o funcionário não a vê.
+- **Painel do técnico:** filtros (status, setor, categoria, prioridade), busca por texto, exportação em CSV
+  (abre no Excel), taxa de autoatendimento, lista de assuntos que a base ainda não cobre e backup do banco por download.
+- **Atalhos:** com a conversa vazia, o assistente mostra botões para os problemas mais comuns.
+- **Segurança e robustez:** atraso crescente a cada senha errada do técnico e espera de até 10 s do banco
+  quando há gravações simultâneas.
+
+Os assuntos sem solução guardam apenas o texto da primeira mensagem (sem o nome de quem escreveu).
+
+
+## Versionamento
+
+A versão em uso aparece na tela de entrada e na barra lateral (`versao.py`). Cada entrega traz uma nota em
+`versoes/NOTA_vX.Y.Z.md` e o histórico fica em `CHANGELOG.md`. Guarde o zip de cada versão para poder voltar.
+
+## Se o sistema não abrir
+
+Se a janela preta mostrar `Email:` na primeira execução, é só apertar **Enter** (as versões novas já evitam essa pergunta).
+
+Dê dois cliques em **`Diagnostico.bat`**: ele confere Python, arquivos, versões, bibliotecas, `.env`, banco e porta e diz o que
+corrigir. O relatório fica em `diagnostico.txt`. Ao copiar uma versão nova, copie o **conteúdo** do zip para a pasta do sistema
+(não a pasta inteira) e todos os arquivos, não só alguns.
+
+## Avisos para a TI (e-mail, Teams, webhook)
+
+Opcionais: preencha as variáveis de aviso no `.env` (veja `.env.example`) e teste no painel do técnico, em
+*Avisos para a equipe de TI*. Sem configurar, nada é enviado.
+
+## Servidor (para depois)
+
+Tudo o que serve para colocar em um servidor (Docker, serviço do Windows/Linux, HTTPS e o guia) está na pasta `servidor/`.
+Não é necessário para usar o sistema no seu computador. Comece por `servidor/LEIA-ME.md`.

@@ -1,9 +1,13 @@
+import csv
 import hmac
+import io
 import os
 import time
 import streamlit as st
 from dotenv import load_dotenv
-from database import init_db, create_ticket, list_tickets, update_ticket, get_messages, log_kb_event, kb_stats
+from database import init_db, create_ticket, list_tickets, update_ticket, get_messages, log_kb_event, kb_stats, add_reply, log_gap, list_gaps, backup_bytes, register_login_failure, reset_login_failures
+from notificacoes import notificar_novo_chamado, notificar_resposta, canais_configurados, enviar_teste
+from versao import VERSAO
 from knowledge import find_solution, get_entry, format_solution, context_for_ai, ticket_description, closing_intent
 
 load_dotenv()
@@ -186,6 +190,28 @@ def clean_name(raw):
 def name_is_valid(name):
     return len(name) >= 2 and any(c.isalpha() for c in name)
 
+TOPICOS_RAPIDOS = [
+    ("🌐 Sem internet", "Estou sem internet"),
+    ("🖨️ Impressora", "A impressora não imprime"),
+    ("🔑 Senha ou login", "Esqueci minha senha"),
+    ("🐢 Computador lento", "O computador está lento"),
+    ("🎧 Som ou microfone", "Estou sem som"),
+    ("📞 Ramal / telefone", "Meu ramal não funciona"),
+]
+
+STATUS_CHAMADO = ["Aberto", "Em atendimento", "Aguardando usuário", "Resolvido", "Fechado"]
+PRIORIDADES = ["Baixa", "Média", "Alta", "Crítica"]
+
+def tickets_csv(rows):
+    """CSV dos chamados (separador ; e UTF-8 com BOM, para abrir direto no Excel em português)."""
+    cols = ["protocolo", "criado_em", "atualizado_em", "solicitante", "setor", "categoria",
+            "prioridade", "status", "assunto", "descricao"]
+    buf = io.StringIO()
+    writer = csv.DictWriter(buf, fieldnames=cols, delimiter=";", extrasaction="ignore")
+    writer.writeheader()
+    writer.writerows(rows)
+    return buf.getvalue().encode("utf-8-sig")
+
 SETORES = ["Financeiro", "Administrativo", "RH", "Jurídico", "Clínica", "Atendimento", "Call-center", "Outro"]
 
 def reset_ai_topic():
@@ -216,14 +242,10 @@ def open_auto_ticket(entry, requester, sector):
     """Abre o chamado automático (o passo a passo não resolveu) e encerra o assunto no chat."""
     report = st.session_state.kb_pending_text or entry["titulo"]
     log_kb_event(entry["id"], requester, "nao_resolveu")
-    protocol = create_ticket(
-        requester,
-        entry["titulo"],
-        entry.get("categoria_chamado", "Outro"),
-        "Média",
-        ticket_description(entry, report),
-        sector=sector,
-    )
+    category = entry.get("categoria_chamado", "Outro")
+    description = ticket_description(entry, report)
+    protocol = create_ticket(requester, entry["titulo"], category, "Média", description, sector=sector)
+    notificar_novo_chamado(protocol, requester, sector, entry["titulo"], category, "Média", description)
     st.session_state.chat_history.append({
         "role": "user",
         "content": f"Fiz o passo a passo \"{entry['titulo']}\" e o problema continua.",
@@ -243,6 +265,7 @@ def open_ai_ticket(requester, sector):
                    f"Mensagens do funcionário na conversa:\n{relato}")
     log_kb_event("ia", requester, "nao_resolveu")
     protocol = create_ticket(requester, title, category, "Média", description, sector=sector)
+    notificar_novo_chamado(protocol, requester, sector, title, category, "Média", description)
     st.session_state.chat_history.append({"role": "user", "content": "Continuo com o problema."})
     announce_ticket(requester, protocol, "com o resumo da nossa conversa")
 
@@ -266,6 +289,7 @@ def maybe_ask_ai_checkin():
 def show_login():
     """Tela inicial: escolher entre Funcionário e Técnico de TI."""
     st.header("Bem-vindo(a)!")
+    st.caption(f"Versão {VERSAO}")
     etapa = st.session_state.get("login_etapa")
 
     if etapa is None:
@@ -307,10 +331,14 @@ def show_login():
                 entrar = st.form_submit_button("Entrar na área de chamados", type="primary", use_container_width=True)
             if entrar:
                 if hmac.compare_digest(senha.encode("utf-8"), configured_password.encode("utf-8")):
+                    reset_login_failures()
                     st.session_state["perfil"] = "tecnico"
                     st.session_state.pop("login_etapa", None)
                     st.rerun()
                 else:
+                    # Atraso que cresce a cada erro seguido (1, 2, 4 e até 8 segundos): atrapalha
+                    # tentativas em sequência sem bloquear a equipe de TI.
+                    time.sleep(min(2 ** (register_login_failure() - 1), 8))
                     st.error("Senha incorreta.")
 
     if st.button("⬅️ Voltar"):
@@ -341,7 +369,7 @@ else:
 if st.sidebar.button("Sair"):
     st.session_state.clear()
     st.rerun()
-st.sidebar.caption("Ambiente local de desenvolvimento.")
+st.sidebar.caption(f"TechAssist AI · versão {VERSAO}")
 
 if role == "Funcionário":
     st.header("Área do funcionário")
@@ -413,6 +441,15 @@ if role == "Funcionário":
                 open_ai_ticket(user, sector)
                 st.rerun()
 
+        # Atalhos: com a conversa vazia, os problemas mais comuns ficam a um clique.
+        quick_text = ""
+        if not st.session_state.chat_history:
+            st.caption("Problemas mais comuns (clique para começar ou escreva abaixo):")
+            quick_cols = st.columns(3)
+            for i, (label, message) in enumerate(TOPICOS_RAPIDOS):
+                if quick_cols[i % 3].button(label, key=f"quick_{i}", use_container_width=True):
+                    quick_text = message
+
         with st.form("assistant_chat_form", clear_on_submit=True):
             prompt = st.text_input(
                 "Sua mensagem",
@@ -421,8 +458,9 @@ if role == "Funcionário":
             )
             submitted = st.form_submit_button("Enviar mensagem", type="primary", use_container_width=True)
 
-        if submitted and prompt.strip():
-            text = prompt.strip()
+        incoming = quick_text or (prompt.strip() if submitted else "")
+        if incoming:
+            text = incoming
             st.session_state.chat_history.append({"role": "user", "content": text})
 
             # Mensagens como "terminar conversa", "obrigado, resolveu" ou "não, só isso":
@@ -473,11 +511,14 @@ if role == "Funcionário":
                 st.session_state.chat_history.append({"role": "assistant", "content": format_solution(entry)})
             else:
                 # 2º) Nenhuma solução conhecida: usa a IA (com o que já foi tentado, se houver).
+                if not st.session_state.ai_topic_msgs:
+                    log_gap(text)  # a base não cobriu este assunto: vira sugestão de nova solução
                 st.session_state.ai_topic_msgs.append(text)
                 if st.session_state.ai_topic_start is None:
                     st.session_state.ai_topic_start = time.time()
                 extra = context_for_ai(previous) if previous else None
-                answer = ask_ai(build_ai_history(st.session_state.chat_history, extra))
+                with st.spinner("Pensando na melhor orientação..."):
+                    answer = ask_ai(build_ai_history(st.session_state.chat_history, extra))
                 st.session_state.chat_history.append({"role": "assistant", "content": answer})
             # Recarrega a tela para a nova resposta aparecer no histórico,
             # acima do campo de digitação.
@@ -502,6 +543,7 @@ if role == "Funcionário":
                 else:
                     # Prioridade inicial definida pelo sistema; somente a equipe de TI altera depois.
                     ticket_id = create_ticket(user, title.strip(), category, "Média", description, sector=sector)
+                    notificar_novo_chamado(ticket_id, user, sector, title.strip(), category, "Média", description)
                     st.success(f"Chamado criado: **{ticket_id}** em nome de {user}. "
                                "Guarde esse código para acompanhar o andamento em Meus chamados.")
 
@@ -518,6 +560,29 @@ if role == "Funcionário":
         tickets = list_tickets(requester=user)
         if tickets:
             st.dataframe(tickets, use_container_width=True, hide_index=True)
+            st.divider()
+            st.subheader("Detalhes e conversa com a TI")
+            chosen = st.selectbox("Escolha um chamado", [t["protocolo"] for t in tickets], key="meu_chamado")
+            cur = next(t for t in tickets if t["protocolo"] == chosen)
+            st.write(f"**{cur['assunto']}** · status: **{cur['status']}** · prioridade: {cur['prioridade']}")
+            if cur["status"] == "Aguardando usuário":
+                st.warning("A equipe de TI está aguardando a sua resposta neste chamado.")
+            for msg in get_messages(chosen, include_internal=False):
+                st.markdown(f"**{msg['autor']}** · {msg['criado_em']}")
+                st.write(msg["mensagem"])
+            if cur["status"] == "Fechado":
+                st.caption("Este chamado está fechado. Se o problema voltou, abra um novo chamado.")
+            else:
+                with st.form("resposta_chamado", clear_on_submit=True):
+                    reply = st.text_area("Escrever uma mensagem para a equipe de TI")
+                    send_reply = st.form_submit_button("Enviar mensagem")
+                if send_reply:
+                    if not reply.strip():
+                        st.error("Escreva a mensagem antes de enviar.")
+                    else:
+                        add_reply(chosen, user, reply)
+                        notificar_resposta(chosen, user, cur["setor"], cur["assunto"], reply)
+                        st.rerun()
         else:
             st.info("Nenhum chamado encontrado para este nome.")
 
@@ -526,12 +591,23 @@ else:
     st.caption("Nesta área, a equipe de TI pode visualizar todos os chamados e definir prioridade e status.")
     kb = kb_stats()
     st.subheader("Autoatendimento (base de soluções)")
-    k1, k2, k3, k4, k5 = st.columns(5)
+    k1, k2, k3, k4, k5, k6 = st.columns(6)
+    resolved, opened = kb.get("resolveu", 0), kb.get("nao_resolveu", 0)
     k1.metric("Soluções sugeridas", kb.get("sugerida", 0))
-    k2.metric("Resolvidas sem chamado", kb.get("resolveu", 0))
-    k3.metric("Não resolveram", kb.get("nao_resolveu", 0))
+    k2.metric("Resolvidas sem chamado", resolved)
+    k3.metric("Não resolveram", opened)
     k4.metric("Encerradas sem resposta", kb.get("encerrou", 0))
     k5.metric("Pesquisas na internet", kb.get("pesquisou", 0))
+    k6.metric("Taxa de autoatendimento",
+              f"{resolved / (resolved + opened):.0%}" if resolved + opened else "—",
+              help="Resolveu ÷ (Resolveu + Não resolveu). Mostra quantos problemas foram resolvidos sem abrir chamado.")
+    gaps = list_gaps()
+    if gaps:
+        with st.expander("Assuntos que a base ainda não cobre (candidatos a novas soluções)"):
+            st.caption("Mensagens que não encontraram solução na base e foram respondidas pela IA, "
+                       "da mais repetida para a menos. O nome de quem escreveu não é guardado.")
+            st.dataframe([{"Mensagem": g["texto"], "Vezes": g["vezes"], "Última vez": g["ultima"]} for g in gaps],
+                         use_container_width=True, hide_index=True)
     st.divider()
     all_tickets = list_tickets()
     if all_tickets:
@@ -539,28 +615,73 @@ else:
         c1.metric("Total de chamados", len(all_tickets))
         c2.metric("Abertos", sum(1 for x in all_tickets if x["status"] == "Aberto"))
         c3.metric("Em atendimento", sum(1 for x in all_tickets if x["status"] == "Em atendimento"))
-        st.dataframe(all_tickets, use_container_width=True, hide_index=True)
-        st.divider()
-        st.subheader("Administrar chamado")
-        ids = [x["protocolo"] for x in all_tickets]
-        selected = st.selectbox("Protocolo", ids)
-        current = next(x for x in all_tickets if x["protocolo"] == selected)
-        sector_txt = f" · setor: {current['setor']}" if current["setor"] else ""
-        st.write(f"**{current['assunto']}** — {current['solicitante']}{sector_txt}")
-        st.write(current["descricao"])
-        statuses = ["Aberto", "Em atendimento", "Aguardando usuário", "Resolvido", "Fechado"]
-        new_status = st.selectbox("Status", statuses, index=statuses.index(current["status"]))
-        priorities = ["Baixa", "Média", "Alta", "Crítica"]
-        current_priority = current["prioridade"] if current["prioridade"] in priorities else "Média"
-        new_priority = st.selectbox("Prioridade definida pela TI", priorities, index=priorities.index(current_priority))
-        resolution = st.text_area("Anotação técnica / solução aplicada")
-        if st.button("Salvar atualização", type="primary"):
-            update_ticket(selected, new_status, resolution, user, new_priority)
-            st.success("Chamado atualizado.")
-            st.rerun()
-        with st.expander("Histórico do chamado"):
-            for msg in get_messages(selected):
-                st.markdown(f"**{msg['autor']}** · {msg['criado_em']}")
-                st.write(msg["mensagem"])
+
+        st.subheader("Chamados")
+        f1, f2, f3, f4 = st.columns(4)
+        f_status = f1.multiselect("Status", STATUS_CHAMADO)
+        f_setor = f2.multiselect("Setor", sorted({x["setor"] for x in all_tickets if x["setor"]}))
+        f_categoria = f3.multiselect("Categoria", sorted({x["categoria"] for x in all_tickets}))
+        f_prioridade = f4.multiselect("Prioridade", PRIORIDADES)
+        f_texto = st.text_input("Buscar por protocolo, nome, assunto ou descrição").strip().lower()
+        view = [
+            x for x in all_tickets
+            if (not f_status or x["status"] in f_status)
+            and (not f_setor or x["setor"] in f_setor)
+            and (not f_categoria or x["categoria"] in f_categoria)
+            and (not f_prioridade or x["prioridade"] in f_prioridade)
+            and (not f_texto or f_texto in " ".join(str(x[k]) for k in ("protocolo", "solicitante", "assunto", "descricao")).lower())
+        ]
+        st.caption(f"Mostrando {len(view)} de {len(all_tickets)} chamados.")
+        if view:
+            st.dataframe(view, use_container_width=True, hide_index=True)
+            st.download_button("⬇️ Exportar a lista acima (CSV)", data=tickets_csv(view),
+                               file_name=f"chamados-{time.strftime('%Y-%m-%d')}.csv", mime="text/csv")
+            st.divider()
+            st.subheader("Administrar chamado")
+            ids = [x["protocolo"] for x in view]
+            selected = st.selectbox("Protocolo", ids)
+            current = next(x for x in view if x["protocolo"] == selected)
+            sector_txt = f" · setor: {current['setor']}" if current["setor"] else ""
+            st.write(f"**{current['assunto']}** — {current['solicitante']}{sector_txt}")
+            st.write(current["descricao"])
+            new_status = st.selectbox("Status", STATUS_CHAMADO, index=STATUS_CHAMADO.index(current["status"]))
+            current_priority = current["prioridade"] if current["prioridade"] in PRIORIDADES else "Média"
+            new_priority = st.selectbox("Prioridade definida pela TI", PRIORIDADES, index=PRIORIDADES.index(current_priority))
+            resolution = st.text_area("Anotação técnica / mensagem para o funcionário")
+            internal = st.checkbox("Anotação interna (o funcionário não vê)")
+            st.caption("Dica: use o status Aguardando usuário quando precisar de uma resposta do funcionário; "
+                       "ele responde em Meus chamados e o chamado volta para Em atendimento.")
+            if st.button("Salvar atualização", type="primary"):
+                update_ticket(selected, new_status, resolution, user, new_priority, internal=internal)
+                st.success("Chamado atualizado.")
+                st.rerun()
+            with st.expander("Histórico do chamado"):
+                for msg in get_messages(selected):
+                    flag = " · 🔒 interna" if msg.get("interna") else ""
+                    st.markdown(f"**{msg['autor']}** · {msg['criado_em']}{flag}")
+                    st.write(msg["mensagem"])
+        else:
+            st.info("Nenhum chamado com esses filtros.")
     else:
         st.info("Ainda não existem chamados cadastrados.")
+
+    st.divider()
+    with st.expander("Avisos para a equipe de TI (e-mail, Teams, webhook)"):
+        canais = canais_configurados()
+        if canais:
+            st.write("Canais configurados: " + ", ".join(canais) + ". Chamados novos e respostas de funcionários geram aviso.")
+            if st.button("Enviar aviso de teste"):
+                for canal, status in enviar_teste().items():
+                    (st.success if status == "ok" else st.error)(f"{canal}: {status}")
+        else:
+            st.info("Nenhum canal configurado. Preencha as variáveis de aviso no arquivo .env "
+                    "(veja .env.example e docs/IMPLANTACAO_SERVIDOR.md) e reinicie o sistema.")
+    with st.expander("Manutenção: backup do banco de dados"):
+        st.caption("Gera uma cópia completa dos chamados, que pode ser feita com o sistema em uso. "
+                   "Guarde o arquivo em outro local.")
+        if st.button("Preparar backup"):
+            st.session_state["backup_data"] = backup_bytes()
+        if st.session_state.get("backup_data"):
+            st.download_button("💾 Baixar backup (.db)", data=st.session_state["backup_data"],
+                               file_name=f"techassist-backup-{time.strftime('%Y-%m-%d')}.db",
+                               mime="application/octet-stream")

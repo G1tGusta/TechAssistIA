@@ -18,9 +18,14 @@ fi
     .venv/bin/python -m pip install -r requirements.txt || exit 1
 
 if [ ! -f .env ]; then
-    cp .env.example .env
+    if [ -f .env.example ]; then cp .env.example .env
+    else printf 'GROQ_API_KEY=\nGROQ_MODEL=openai/gpt-oss-120b\nPESQUISA_WEB=on\nTECHNICIAN_PASSWORD=\n' > .env; fi
     echo "Edite o arquivo .env (TECHNICIAN_PASSWORD e, para usar a IA, GROQ_API_KEY) e execute este script novamente."
     exit 0
 fi
 
-exec .venv/bin/python -m streamlit run app.py
+# Evita a pergunta "Email:" do Streamlit na primeira execucao.
+if [ ! -f "$HOME/.streamlit/credentials.toml" ]; then
+    mkdir -p "$HOME/.streamlit" && printf '[general]\nemail = ""\n' > "$HOME/.streamlit/credentials.toml"
+fi
+exec .venv/bin/python -m streamlit run app.py --browser.gatherUsageStats false

@@ -44,24 +44,6 @@
         "No programa em que você está imprimindo, confira se escolheu a impressora certa na lista antes de clicar em Imprimir.",
         "Desligue a impressora, espere 30 segundos, ligue de novo e tente imprimir mais uma vez."
       ],
-      "resultado_esperado": "Consegui scannear agora",
-      "quando_abrir_chamado": "Se a impressora não aparece na lista, se o aviso de erro continua depois de ligar e desligar, ou se várias pessoas não conseguem imprimir.",
-      "categoria_chamado": "Impressora / Periféricos"
-    },
-    {
-      "id": "scanner",
-      "titulo": "Impressora não scannea",
-      "palavras_chave": [
-        "scann",
-        "computador",
-        "scannear",
-        "impressão"
-      ],
-      "passos": [
-        "No canto inferior esquerdo clique na setinha ao lado do sinal de internet",
-        "Procure um programa chamado 'ControlCenter4' clique nele e escolha a opção avançado, caso apareça",
-        "Caso contrario abra um chamado para solicitar o suporte do pessoal da TI."
-      ],
       "resultado_esperado": "O documento sai normalmente na impressora.",
       "quando_abrir_chamado": "Se a impressora não aparece na lista, se o aviso de erro continua depois de ligar e desligar, ou se várias pessoas não conseguem imprimir.",
       "categoria_chamado": "Impressora / Periféricos"
